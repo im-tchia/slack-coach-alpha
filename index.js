@@ -39,7 +39,7 @@ runningPrompt = runningPrompt + promptHeaderAsst + intro1 + promptEOT+ promptHea
   // Start the app
   await app.start(process.env.PORT || 12000);
 
-  ////// This is for when we @ mention CODI in a channel/////
+  
   let inConversation1 = false;
 
   app.event('app_mention', async ({ event, context, client, say }) => {
