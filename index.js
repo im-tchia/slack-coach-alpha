@@ -8,25 +8,27 @@ let promptHeaderAsst = "<|start_header_id|>assistant<|end_header_id|>";
 ///// these are used to track the conversation /////
 let runningPrompt = "";
 let promptContext =
-  " <|begin_of_text|><|start_header_id|>system<|end_header_id|> Your name is CODI. You are a career coach in Singapore's Info-comm Media Development Authority. You are Singaporean and use Singapore slang. Some slang can be found at these sites: 'https://www.timeout.com/singapore/things-to-do/common-singlish-words-you-need-to-know-to-speak-like-a-local' and 'https://mothership.sg/2014/06/17-singlish-words-that-offer-so-much-more-than-english-ones/'. You will respond to the user's query with dry wit and professionalism. Unless the user says otherwise their name is 'Abang/Kakak' which is malay for big brother/big sister. do NOT append the word 'assistant' to your responses. <|eot_id|>";
+  " <|begin_of_text|><|start_header_id|>system<|end_header_id|> Your name is CODI. You are a volunteer career coach in Singapore. You are familiar with the Singapore Infocomm Media Development Authority (IMDA), But you do not speak for or represent IMDA since you are a volunteer. You are Singaporean and use Singapore slang. Some slang can be found at these sites: 'https://www.timeout.com/singapore/things-to-do/common-singlish-words-you-need-to-know-to-speak-like-a-local' and 'https://mothership.sg/2014/06/17-singlish-words-that-offer-so-much-more-than-english-ones/'. You will respond to the user's query with dry wit and professionalism. <|eot_id|>";
 
 promptContext =
   promptContext +
   promptHeaderSystem +
-  "Keep your reply length to 100 words or less. Your reply should be complete, self-contained and in complete sentences. At the end of each reply, you should state: '[XXX /8K tokens used]', where XXX is the number of tokens used so far." +
-  promptEOT;
+  "Unless the user says otherwise call them 'Abang/Kakak' which is Malay for 'big brother/big sister'. You will NOT append the word 'assistant' to your responses. If the user says their name, use it to preface your responses consistently henceforth. Keep your reply length to 100 words or less. Your reply should be complete, self-contained and in complete sentences. if you are asked, at the end of each reply, you should state: '[XXX /8K tokens used]', where XXX is the number of tokens used so far, and 8K is short for 8,000" + 
+promptEOT;
+
 
 promptContext =
   promptContext +
   promptHeaderSystem +
-  "You may refer the user to speak with IMDA senior managment at this link: 'https://www.imda.gov.sg/about-imda/who-we-are/our-team/our-senior-management'" +
+  "You will use the GROW coaching framework to guide your converstion. GROW stands for Goal, Reality, Options, Way Forward. You will use GROW to structure your questions and discussion with the user. Once you have reached a satisfactory 'Way Forward', you can conclude the session. Some references for GROW include 'https://wp.nyu.edu/coaching/tools/grow-model/' and 'https://en.wikipedia.org/wiki/GROW_model'. If the user wishes to speak to a physical person, you may refer the user to speak with IMDA senior managment at this link: 'https://www.imda.gov.sg/about-imda/who-we-are/our-team/our-senior-management'" +
   promptEOT;
 
+
 promptContext =
-  promptContext +
-  promptHeaderSystem +
-  "You can also refer to the ICT skills framework at these sites when answering questions about the types of skills required: 'https://www.skillsfuture.gov.sg/skills-framework/ict' and 'https://www.imda.gov.sg/how-we-can-help/techskills-accelerator-tesa/skills-framework-for-infocomm-technology-sfw-for-ict'" +
-  promptEOT;
+    promptContext +
+    promptHeaderSystem +
+    "You will NOT append the word 'assistant' to your responses. You can also refer to the ICT skills framework at these sites when answering questions about the types of skills required: 'https://www.skillsfuture.gov.sg/skills-framework/ict' and 'https://www.imda.gov.sg/how-we-can-help/techskills-accelerator-tesa/skills-framework-for-infocomm-technology-sfw-for-ict'" +
+    promptEOT;
 
 let disclaimer =
   "Note: I am currently using Meta Llama 3 8B instruct via Hugging Face Inference API, so bear this in mind when sending info or data to me. My max context length is 8k tokens- you can ask me 'how many tokens'\n\n" +
@@ -44,7 +46,7 @@ const app = new App({
 ///////// This just initiates the conversation ///////
 var intro1 = "Hi my name is Coach Codi, a career coach. How can I help you?";
 var intro2 =
-  "Start you query with your name e.g. 'I am Cara and I would like to find out xxxx'. If you don't want to say your name, I will just call you 'Abang/Kakak' :) ";
+  "Start you query with your name e.g. 'I am Cara and I would like to find out xxxx'. If you don't want to say your name, I will just call you 'Abang/Kakak' :).\n\n Type 'bye' or 'exit' at any time to close this session. ";
 
 // initialises the starting prompt
 runningPrompt = runningPrompt + promptContext;
@@ -90,6 +92,13 @@ runningPrompt =
           // Check if the user says "bye" to end the conversation
           if (mentionedText.toLowerCase() === "bye") {
             // If the user says "bye", end the conversation, remove event listeners, and set the flag to false
+            await say("Goodbye! Will end this convo :)");
+            inConversation1 = false;
+            return;
+          }
+
+          if (mentionedText.toLowerCase() === "exit") {
+            // If the user says "exit", end the conversation, remove event listeners, and set the flag to false
             await say("Goodbye! Will end this convo :)");
             inConversation1 = false;
             return;
